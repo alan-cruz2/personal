@@ -1,3 +1,4 @@
+//@ts-nocheck
 import Head from "next/head";
 import { Tabs, Button, Divider } from "antd";
 import { ListIt } from "../components/ListIt";
@@ -30,7 +31,7 @@ const items = [
 ];
 
 export default function Home() {
-  const onSelect = (key) => {
+  const onSelect = (key: any) => {
     console.log("**** key", key);
   };
 

@@ -5,6 +5,7 @@ import { AddModal } from './add';
 import { useGetAPI, usePutAPI } from '../hooks/useAPI';
 import { useSession } from 'next-auth/react';
 import { PurchasedModal } from './purchased';
+import { ColumnType } from 'antd/es/table';
 
 export interface Item {
   key: string;
@@ -14,6 +15,7 @@ export interface Item {
   purchased?: number;
   tags?: string[];
   img?: string;
+  link?: string;
 }
 
 const defaultColumns = ["img", "title", "description", "quantity", "purchased", "link"];
@@ -47,30 +49,28 @@ const seedData = [
   },
 ];
 
-export const AddView = ({ userToView }) => {
+export const AddView = ({ userToView } : {userToView?: string}) => {
   const { data: session } = useSession();
   const {data} = useGetAPI(userToView ?? session?.user?.email);
   const isOwner = userToView === session?.user?.email;
   const { postRequest } = usePutAPI();
   
-  const [editingKey, setEditingKey] = useState('');
+  const [editingKey, setEditingKey] = useState<string|undefined>('');
   const [form] = Form.useForm();
   const isEditing = (record: Partial<Item>) => record.key === editingKey;
 
-  const edit = (record: Partial<Item> & {key: React.Key}) => {
-    console.log("****", record);
-    //form.setFieldsValue({ title: '', description: '', quantity: 0, tags: [] });
-    setEditingKey(record.key);
+  const edit = (record: Partial<Item> & {key?: React.Key}) => {
+    setEditingKey(record?.key);
   };
 
   const [showPurchasedModal, setShowPurchasedModal] = useState(false);
-  const [itemForPurchase, setItemForPurchase] = useState(false);
+  const [itemForPurchase, setItemForPurchase] = useState<Partial<Item>|undefined>();
 
   const cancel = () => {
     setEditingKey('');
   };
 
-  const save = async (key: React.Key) => {
+  const save = async (key: React.Key | undefined) => {
     try {
       const row = (await form.validateFields(validationFields, {
         validateOnly: true,
@@ -97,7 +97,7 @@ export const AddView = ({ userToView }) => {
     }
   }
 
-  const columns = (isOwner ? ownerColumns : defaultColumns).map(columnKey => {
+  const columns: Record<string, any> = (isOwner ? ownerColumns : defaultColumns).map(columnKey => {
     return {
       title: columnKey,
       dataIndex: columnKey,
@@ -115,7 +115,7 @@ export const AddView = ({ userToView }) => {
     }
   });
 
-  const showPurchased = (record) => {
+  const showPurchased = (record: Partial<Item>) => {
     setItemForPurchase(record);
     setShowPurchasedModal(true);
   }
@@ -128,7 +128,7 @@ export const AddView = ({ userToView }) => {
   columns.push({
     title: isOwner ? "edit" : "I bought this",
     key: isOwner ? "edit" : "purchased",
-    render: (_, record) => {
+    render: (_: any, record: Partial<Item>) => {
       if (isOwner) {
         const editable = isEditing(record);
         return editable ? (
@@ -167,14 +167,14 @@ export const AddView = ({ userToView }) => {
     setOpen(false);
   };
 
-  const handleSave = (newItem) => {
+  const handleSave = (newItem: { user: string | null | undefined; }) => {
     newItem.user = session?.user?.email;
     setConfirmLoading(true);
     postRequest(JSON.stringify(newItem));
     setOpen(false);
   };
 
-  const handlePurchaseSave = (item) => {
+  const handlePurchaseSave = (item: any) => {
     console.log("**** item saving", item);
     postRequest(JSON.stringify(item));
     hidePurchased();
@@ -186,7 +186,7 @@ export const AddView = ({ userToView }) => {
     <Table
       dataSource={data}
       components={{ body: { cell: EditableCell }}}
-      columns={columns}
+      columns={columns as ColumnType<Record<string, any>>[]}
       rowClassName={(record) => {
         const { quantity, purchased } = record;
         return quantity === purchased ? "all-gone" : ""

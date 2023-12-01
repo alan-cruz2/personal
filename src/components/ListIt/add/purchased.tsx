@@ -2,7 +2,7 @@ import { Modal, Button, InputNumber, Typography } from "antd";
 import { useState, useCallback } from "react";
 const { Text } = Typography;
 
-export const PurchasedModal = (props) => {
+export const PurchasedModal = (props: Record<string, any>) => {
   const {
     confirmLoading,
     open,
@@ -14,7 +14,7 @@ export const PurchasedModal = (props) => {
 
   const [localItem, setLocalItem] = useState({...item});
 
-  const setPurchased = useCallback((val) => {
+  const setPurchased = useCallback((val: any) => {
     setLocalItem({
       ...item,
       purchased: val,

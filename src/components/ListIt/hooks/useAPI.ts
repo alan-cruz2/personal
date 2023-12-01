@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-export const useGetAPI = (user) => {
+export const useGetAPI = (user: any) => {
   const [data, setData] = useState();
   
   useEffect(() => {
@@ -19,7 +19,7 @@ export const useGetAPI = (user) => {
 };
 
 export const usePutAPI = () => {
-  const postRequest = async (body) => {
+  const postRequest = async (body: any) => {
     const response = await fetch("https://zu5haugmkr2ft3oq4i3li2abcy0ktqvt.lambda-url.us-east-1.on.aws/", {
       method: "PUT",
       body

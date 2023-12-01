@@ -2,7 +2,7 @@ import { Modal, Button, Space, Input, Divider, Image, Typography } from "antd";
 import { useState, useCallback } from "react";
 const { Text } = Typography;
 
-export const AddModal = (props) => {
+export const AddModal = (props: Record<string, any>) => {
   const {
     confirmLoading,
     open,
@@ -20,9 +20,10 @@ export const AddModal = (props) => {
     keywords: '',
     img: '',
     purchased: 0,
+    link: ''
   });
 
-  const setTitle = useCallback((event) => {
+  const setTitle = useCallback((event: { target: { value: any; }; }) => {
     const val = event.target.value;
     setNewItem({
       ...newItem,
@@ -30,7 +31,7 @@ export const AddModal = (props) => {
     });
   }, [newItem, setNewItem]);
 
-  const setDescription = useCallback((event) => {
+  const setDescription = useCallback((event: { target: { value: any; }; }) => {
     const val = event.target.value;
     setNewItem({
       ...newItem,
@@ -38,7 +39,7 @@ export const AddModal = (props) => {
     });
   }, [newItem, setNewItem]);
 
-  const setQuantity = useCallback((event) => {
+  const setQuantity = useCallback((event: { target: { value: any; }; }) => {
     const val = event.target.value;
     setNewItem({
       ...newItem,
@@ -46,7 +47,7 @@ export const AddModal = (props) => {
     });
   }, [newItem, setNewItem]);
 
-  const setLink = useCallback((event) => {
+  const setLink = useCallback((event: { target: { value: any; }; }) => {
     const link = event?.target?.value ?? event;
     console.log("**** link", link, event);
     setNewItem({
@@ -55,7 +56,7 @@ export const AddModal = (props) => {
     });
   }, [newItem, setNewItem]);
   
-  const onLinkPaste = useCallback((value) => {
+  const onLinkPaste = useCallback((value: string | URL) => {
     try {
       const url = new URL(value);
       const body = { link: value };
@@ -79,7 +80,7 @@ export const AddModal = (props) => {
                 title,
                 description,
                 img: images?.[0],
-                link: url,
+                link: url.toString(),
               });
             }
             setLinkProcessing(false);
@@ -106,6 +107,7 @@ export const AddModal = (props) => {
         keywords: '',
         img: '',
         purchased: 0,
+        link: ''
       });
       setShowLink(false);
       setLinkProcessing(false);

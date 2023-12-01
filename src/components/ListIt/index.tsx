@@ -12,6 +12,7 @@ export interface Item {
   purchased?: number;
   tags?: string[];
   img?: string;
+  link?: string;
 }
 
 export const ListIt = () => {
@@ -21,9 +22,9 @@ export const ListIt = () => {
 
   const [showLink, setShowLink] = useState(false);
   const [selectedView, setSelectedView] = useState();
-  const [userToView, setUserToView] = useState(session?.user?.email);
+  const [userToView, setUserToView] = useState<string | undefined>(session?.user?.email ?? undefined);
 
-  const handleViewUser = useCallback((val) => {
+  const handleViewUser = useCallback((val: string) => {
     setUserToView(val);
   }, [userToView, setUserToView]);
   
