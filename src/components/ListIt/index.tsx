@@ -39,6 +39,9 @@ export const ListIt = () => {
         {value: "theo@alan-cruz.com", label: "Theo"},
         {value: "henry@alan-cruz.com", label: "Henry"},
         {value: "rico@alan-cruz.com", label: "Rico"},
+        {value: "melissa@alan-cruz.com", label: "Melissa"},
+        {value: "mina@alan-cruz.com", label: "Mina"},
+        {value: "ness@alan-cruz.com", label: "Ness"},
       ]}
       defaultValue={session?.user?.email}
     />
