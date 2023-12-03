@@ -169,7 +169,7 @@ export const AddModal = (props: Record<string, any>) => {
           key="submit"
           type="primary"
           onClick={() =>
-            handleSave(scrapeType === "product" ? newItem : listData)
+            handleSave(scrapeType === "product" ? [newItem] : listData)
           }
         >
           {scrapeType === "product" ? "Add item" : "Confirm and add items"}
