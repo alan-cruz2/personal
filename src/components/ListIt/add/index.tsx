@@ -1,5 +1,5 @@
 import { Button, Form, Popconfirm, Table, Typography } from 'antd';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { EditableCell } from '../editable';
 import { AddModal } from './add';
 import { useGetAPI, usePutAPI } from '../hooks/useAPI';
@@ -51,7 +51,21 @@ const seedData = [
 
 export const AddView = ({ userToView } : {userToView?: string}) => {
   const { data: session } = useSession();
-  const {data} = useGetAPI(userToView ?? session?.user?.email);
+  const [data, setData] = useState<Record<string, any>[]>();
+  const [refresh, setRefresh] = useState<boolean>(true);
+  
+  useEffect(() => {
+    const getItems = async () => {
+      const {data: responseData} = await useGetAPI(userToView ?? session?.user?.email);
+      setData(responseData);
+    }
+
+    if (refresh) {
+      getItems();
+      setRefresh(false);
+    }
+  }, [userToView, session, setData, refresh, setRefresh]);
+  
   const isOwner = userToView === session?.user?.email;
   const { postRequest } = usePutAPI();
   
@@ -171,6 +185,7 @@ export const AddView = ({ userToView } : {userToView?: string}) => {
     newItem.user = session?.user?.email;
     setConfirmLoading(true);
     postRequest(JSON.stringify(newItem));
+    setRefresh(true);
     setOpen(false);
   };
 
