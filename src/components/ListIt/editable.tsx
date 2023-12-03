@@ -1,12 +1,12 @@
-import React from 'react';
-import { Form, Input, Image, Button } from 'antd';
-import { Item } from '.';
+import React from "react";
+import { Form, Input, Image, Button } from "antd";
+import { Item } from ".";
 
 interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
   editing: boolean;
   dataIndex: string;
   title: any;
-  inputType: 'number' | 'text';
+  inputType: "number" | "text";
   record: Item;
   index: number;
   children: React.ReactNode;
@@ -15,7 +15,6 @@ interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
 }
 
 export const EditableCell: React.FC<EditableCellProps> = (props) => {
-  
   const {
     editing,
     dataIndex,
@@ -27,7 +26,6 @@ export const EditableCell: React.FC<EditableCellProps> = (props) => {
     isOwner,
     ...restProps
   } = props;
-  console.log("**** id", title);
   return (
     <td {...restProps}>
       {editing ? (
@@ -39,10 +37,16 @@ export const EditableCell: React.FC<EditableCellProps> = (props) => {
         >
           <Input key={`${title}-${dataIndex}`} />
         </Form.Item>
+      ) : record?.img && dataIndex === "img" ? (
+        <Image height={100} src={record?.img ?? ""} />
+      ) : !!title && record?.quantity === record?.purchased && !isOwner ? (
+        <s>{children}</s>
+      ) : title === "link" ? (
+        <Button href={record?.link} target="_blank">
+          Link
+        </Button>
       ) : (
-        record?.img && dataIndex === "img" ? <Image height={100} src={record?.img ?? ""} /> : 
-        !!title && record?.quantity === record?.purchased && !isOwner ? <s>{children}</s> :
-        title === "link" ? <Button href={record?.link} target='_blank'>Link</Button> : children
+        children
       )}
     </td>
   );

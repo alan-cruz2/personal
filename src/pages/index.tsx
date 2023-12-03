@@ -4,29 +4,25 @@ import { Tabs, Button, Divider } from "antd";
 import { ListIt } from "../components/ListIt";
 import { useSession, signOut, signIn } from "next-auth/react";
 
-const keys = [
-  'list',
-  'bake',
-  'collect'
-];
+const keys = ["list", "bake", "collect"];
 
 const items = [
   {
-    label: 'List It',
+    label: "List It",
     key: keys[0],
-    children: <ListIt />
+    children: <ListIt />,
   },
   {
-    label: 'Bake It',
+    label: "Bake It",
     key: keys[1],
     children: <ListIt />,
-    disabled: true
+    disabled: true,
   },
   {
-    label: 'Play/Collect It',
+    label: "Play/Collect It",
     key: keys[2],
     children: <ListIt />,
-    disabled: true
+    disabled: true,
   },
 ];
 
@@ -39,7 +35,7 @@ export default function Home() {
   console.log("**** session", session);
 
   if (!session || !session.user) {
-    return <Button onClick={signIn}>Sign In</Button>
+    return <Button onClick={signIn}>Sign In</Button>;
   }
 
   return (
@@ -51,11 +47,7 @@ export default function Home() {
       </Head>
       <Button onClick={signOut}>Sign Out {session?.user?.email}</Button>
       <Divider />
-      <Tabs
-        theme="dark"
-        items={items}
-        onChange={onSelect}
-      />
+      <Tabs theme="dark" items={items} onChange={onSelect} />
     </>
   );
 }

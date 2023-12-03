@@ -1,186 +1,331 @@
-import { Modal, Button, Flex, Space, Input, Divider, Image, Typography } from "antd";
+import {
+  Modal,
+  Button,
+  Flex,
+  Space,
+  Input,
+  Divider,
+  Image,
+  Typography,
+  Switch,
+  Table,
+} from "antd";
 import { useState, useCallback } from "react";
 import {
   ZoomInOutlined,
-  ZoomOutOutlined, SelectOutlined
+  ZoomOutOutlined,
+  SelectOutlined,
 } from "@ant-design/icons";
 const { Text } = Typography;
 
 export const AddModal = (props: Record<string, any>) => {
-  const {
-    confirmLoading,
-    open,
-    handleCancel,
-    handleSave
-  } = props;
+  const { confirmLoading, open, handleCancel, handleSave } = props;
 
   const [visibleImage, setVisibleImage] = useState<string>();
+  const [scrapeType, setScrapeType] = useState<string>("product");
+
+  const handleOnScrapeTypeChange = useCallback(() => {
+    setScrapeType(scrapeType === "product" ? "list" : "product");
+  }, [scrapeType, setScrapeType]);
+
   const [images, setImages] = useState<string[]>();
+  const [listData, setListData] = useState<Record<string, any>[]>([]);
   const [scrapingError, setScrapingError] = useState<string>();
   const [linkProcessing, setLinkProcessing] = useState(false);
   const [newItem, setNewItem] = useState({
-    title: '',
-    description: '',
+    title: "",
+    description: "",
     quantity: 1,
-    keywords: '',
-    img: '',
+    keywords: "",
+    img: "",
     purchased: 0,
-    link: ''
+    link: "",
   });
 
-  const setTitle = useCallback((event: { target: { value: any; }; }) => {
-    const val = event.target.value;
-    setNewItem({
-      ...newItem,
-      title: val,
-    });
-  }, [newItem, setNewItem]);
-
-  const setDescription = useCallback((event: { target: { value: any; }; }) => {
-    const val = event.target.value;
-    setNewItem({
-      ...newItem,
-      description: val,
-    });
-  }, [newItem, setNewItem]);
-
-  const setQuantity = useCallback((event: { target: { value: any; }; }) => {
-    const val = event.target.value;
-    setNewItem({
-      ...newItem,
-      quantity: val,
-    });
-  }, [newItem, setNewItem]);
-
-  const setLink = useCallback((event: { target: { value: any; }; }) => {
-    const link = event?.target?.value ?? event;
-    console.log("**** link", link, event);
-    setNewItem({
-      ...newItem,
-      link,
-    });
-  }, [newItem, setNewItem]);
-  
-  const onLinkPaste = useCallback((value: string | URL) => {
-    try {
-      const url = new URL(value);
-      const body = { link: value };
-
-      if (url) {
-        setScrapingError(undefined);
-        setLinkProcessing(true);
-        fetch('/api/meta', {
-          method: 'POST',
-          body: JSON.stringify(body)
-        })
-          .then(response => response.json())
-          .then(data => {
-            const { title, description, images, errorMsg } = data;
-            if (errorMsg) {
-              setScrapingError(errorMsg);
-            } else {
-              setImages(images);
-              setNewItem({
-                ...newItem,
-                title,
-                description,
-                img: images?.[0],
-                link: url.toString(),
-              });
-            }
-            setLinkProcessing(false);
-          }).catch(error => {
-            console.log("**** error", error);
-            setLinkProcessing(false);
-          })
-      }
-    } catch (error) {
-      console.log("**** not a url");
-    }
-  }, [newItem]);
-
-  return <Modal
-  title="Add new item"
-  open={open}
-  confirmLoading={confirmLoading}
-  footer={[
-    <Button key="back" onClick={() => {
+  const setTitle = useCallback(
+    (event: { target: { value: any } }) => {
+      const val = event.target.value;
       setNewItem({
-        title: '',
-        description: '',
-        quantity: 1,
-        keywords: '',
-        img: '',
-        purchased: 0,
-        link: ''
+        ...newItem,
+        title: val,
       });
-      setLinkProcessing(false);
-      handleCancel();
-    }}>
-      Cancel
-    </Button>,
-    <Button key="submit" type="primary" onClick={() => handleSave(newItem)}>
-      Add item
-    </Button>
-  ]}
->
-  <Space direction="vertical">
-    <Input.Search placeholder="url" addonBefore="Gather details from amazon (beta)" onSearch={onLinkPaste} loading={linkProcessing} enterButton="Scrape"/>
-    {scrapingError && <Text type="danger">{scrapingError}</Text>}
-    <Divider />
+    },
+    [newItem, setNewItem]
+  );
 
-    <Space>
+  const setDescription = useCallback(
+    (event: { target: { value: any } }) => {
+      const val = event.target.value;
+      setNewItem({
+        ...newItem,
+        description: val,
+      });
+    },
+    [newItem, setNewItem]
+  );
 
-      <div>
-        <Input placeholder="name/title" addonBefore="Title" value={newItem.title} onChange={setTitle}/>
-        <Input placeholder="description" addonBefore="Description" value={newItem.description} onChange={setDescription}/>
-        <Input placeholder="quantity" addonBefore="How many" value={newItem.quantity} onChange={setQuantity}/>
-        <Input placeholder="link (will not scrape)" addonBefore="Link" value={newItem.link} onChange={setLink} />
-      </div>
-      {images && <div style={{ height: "min-content" }}>
-        <strong>Select the image you would like to use?</strong><br/><em>the current image will be highlighted in <span style={{color: "red"}}>red</span></em>
-        <div style={{height: "250px", overflow: "auto"}}>
-          <Flex wrap="wrap" gap="small">
-          {images.map((image, index) => <Image
-            style={{
-              border: image === newItem.img ? "2px solid red" : "none",
-            }}
-            alt="image option"
-            key={image}
-            width={image === newItem.img ? 100 : 50}
-            src={image}
-            onClick={() => setVisibleImage(image)}
-            preview={{
-              visible: image === visibleImage,
-              toolbarRender: (_, { actions: { onZoomOut, onZoomIn}}) => {
-                return <Space size={40}>
-                  <ZoomOutOutlined alt="zoom out" onClick={onZoomOut} style={{ fontSize: "50px", marginBottom: "20px" }} width={500} rev={undefined} />
-                  <Space direction="vertical" onClick={() => {
-                    setNewItem({
-                      ...newItem,
-                      img: images?.[index],
-                    });
-                    setVisibleImage(undefined);
-                  }
-                    }>
-                    <SelectOutlined alt="select image" id="select-icon" style={{ fontSize: "50px" }} label="Use this image" width={500} rev={undefined} />
-                    <label>Select</label></Space>
-                  <ZoomInOutlined alt="zoom in" width={500} style={{ fontSize: "50px", marginBottom: "20px" }} onClick={onZoomIn} rev={undefined} />
-                </Space>
-              },
-              onVisibleChange: (value) => {
-                if (!value) {
-                  setVisibleImage(undefined);
+  const setQuantity = useCallback(
+    (event: { target: { value: any } }) => {
+      const val = event.target.value;
+      setNewItem({
+        ...newItem,
+        quantity: val,
+      });
+    },
+    [newItem, setNewItem]
+  );
+
+  const setLink = useCallback(
+    (event: { target: { value: any } }) => {
+      const link = event?.target?.value ?? event;
+      setNewItem({
+        ...newItem,
+        link,
+      });
+    },
+    [newItem, setNewItem]
+  );
+
+  const onLinkPaste = useCallback(
+    (value: string | URL) => {
+      try {
+        const url = new URL(value);
+        const body = { link: value, scrapeType };
+
+        if (url) {
+          setScrapingError(undefined);
+          setLinkProcessing(true);
+          fetch("/api/meta", {
+            method: "POST",
+            body: JSON.stringify(body),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              const { title, description, images, errorMsg } = data;
+              if (errorMsg) {
+                setScrapingError(errorMsg);
+              } else {
+                if (scrapeType === "product") {
+                  setImages(images);
+                  setNewItem({
+                    ...newItem,
+                    title,
+                    description,
+                    img: images?.[0],
+                    link: url.toString(),
+                  });
                 }
-              },
-            }}
-          />)}
-      </Flex>
-        </div>
-        </div>}
-    </Space>
+                if (scrapeType === "list") {
+                  // {
+                  //   title: 'Shappy Bell Mallets Glockenspiel Sticks, Rubber Xylophone Mallet Percussion with Wood Handle, 15 Inch Long (Black)',
+                  //   price: 9.49,
+                  //   productId: 'B075LN9V1L',
+                  //   link: 'https://amzn.com/dp/B075LN9V1L/?coliid=I2UD6OGE0G2HPY&colid=34R31ZSKLEM49&psc=1&ref_=list_c_wl_lv_vv_lig_dp_it'
+                  // }
+                  console.log("**** data", data);
+                  setListData(data);
+                }
+              }
+              setLinkProcessing(false);
+            })
+            .catch((error) => {
+              console.log("**** error", error);
+              setLinkProcessing(false);
+            });
+        }
+      } catch (error) {
+        console.log("**** not a url");
+      }
+    },
+    [newItem, scrapeType]
+  );
 
-  </Space>
+  return (
+    <Modal
+      title="Add new item"
+      width={"fit-content"}
+      open={open}
+      confirmLoading={confirmLoading}
+      footer={[
+        <Button
+          key="back"
+          onClick={() => {
+            setNewItem({
+              title: "",
+              description: "",
+              quantity: 1,
+              keywords: "",
+              img: "",
+              purchased: 0,
+              link: "",
+            });
+            setLinkProcessing(false);
+            handleCancel();
+          }}
+        >
+          Cancel
+        </Button>,
+        <Button
+          key="submit"
+          type="primary"
+          onClick={() =>
+            handleSave(scrapeType === "product" ? newItem : listData)
+          }
+        >
+          {scrapeType === "product" ? "Add item" : "Confirm and add items"}
+        </Button>,
+      ]}
+    >
+      <Space direction="vertical">
+        <Switch
+          checkedChildren="list page"
+          unCheckedChildren="product page"
+          onChange={handleOnScrapeTypeChange}
+          defaultChecked={scrapeType === "list"}
+        />
+        <Input.Search
+          placeholder="url"
+          addonBefore="Gather details from amazon (beta)"
+          onSearch={onLinkPaste}
+          loading={linkProcessing}
+          enterButton="Scrape"
+        />
+        {scrapingError && <Text type="danger">{scrapingError}</Text>}
+        <Divider />
 
-</Modal>
+        <Space>
+          {scrapeType === "product" ? (
+            <>
+              <div>
+                <Input
+                  placeholder="name/title"
+                  addonBefore="Title"
+                  value={newItem.title}
+                  onChange={setTitle}
+                />
+                <Input
+                  placeholder="description"
+                  addonBefore="Description"
+                  value={newItem.description}
+                  onChange={setDescription}
+                />
+                <Input
+                  placeholder="quantity"
+                  addonBefore="How many"
+                  value={newItem.quantity}
+                  onChange={setQuantity}
+                />
+                <Input
+                  placeholder="link (will not scrape)"
+                  addonBefore="Link"
+                  value={newItem.link}
+                  onChange={setLink}
+                />
+              </div>
+              {images && (
+                <div style={{ height: "min-content" }}>
+                  <strong>Select the image you would like to use?</strong>
+                  <br />
+                  <em>
+                    the current image will be highlighted in{" "}
+                    <span style={{ color: "red" }}>red</span>
+                  </em>
+                  <div style={{ height: "250px", overflow: "auto" }}>
+                    <Flex wrap="wrap" gap="small">
+                      {images.map((image, index) => (
+                        <Image
+                          style={{
+                            border:
+                              image === newItem.img ? "2px solid red" : "none",
+                          }}
+                          alt="image option"
+                          key={image}
+                          width={image === newItem.img ? 100 : 50}
+                          src={image}
+                          onClick={() => setVisibleImage(image)}
+                          preview={{
+                            visible: image === visibleImage,
+                            toolbarRender: (
+                              _,
+                              { actions: { onZoomOut, onZoomIn } }
+                            ) => {
+                              return (
+                                <Space size={40}>
+                                  <ZoomOutOutlined
+                                    alt="zoom out"
+                                    onClick={onZoomOut}
+                                    style={{
+                                      fontSize: "50px",
+                                      marginBottom: "20px",
+                                    }}
+                                    width={500}
+                                    rev={undefined}
+                                  />
+                                  <Space
+                                    direction="vertical"
+                                    onClick={() => {
+                                      setNewItem({
+                                        ...newItem,
+                                        img: images?.[index],
+                                      });
+                                      setVisibleImage(undefined);
+                                    }}
+                                  >
+                                    <SelectOutlined
+                                      alt="select image"
+                                      id="select-icon"
+                                      style={{ fontSize: "50px" }}
+                                      label="Use this image"
+                                      width={500}
+                                      rev={undefined}
+                                    />
+                                    <label>Select</label>
+                                  </Space>
+                                  <ZoomInOutlined
+                                    alt="zoom in"
+                                    width={500}
+                                    style={{
+                                      fontSize: "50px",
+                                      marginBottom: "20px",
+                                    }}
+                                    onClick={onZoomIn}
+                                    rev={undefined}
+                                  />
+                                </Space>
+                              );
+                            },
+                            onVisibleChange: (value) => {
+                              if (!value) {
+                                setVisibleImage(undefined);
+                              }
+                            },
+                          }}
+                        />
+                      ))}
+                    </Flex>
+                  </div>
+                </div>
+              )}
+            </>
+          ) : (
+            <Table
+              dataSource={listData}
+              columns={[
+                {
+                  title: "Title",
+                  dataIndex: "title",
+                  key: "title",
+                },
+                {
+                  title: "Link",
+                  dataIndex: "link",
+                  key: "link",
+                },
+              ]}
+            ></Table>
+          )}
+        </Space>
+      </Space>
+    </Modal>
+  );
 };
