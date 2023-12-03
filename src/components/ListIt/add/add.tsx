@@ -1,5 +1,9 @@
-import { Modal, Button, Space, Input, Divider, Image, Typography } from "antd";
+import { Modal, Button, Flex, Space, Input, Divider, Image, Typography } from "antd";
 import { useState, useCallback } from "react";
+import {
+  ZoomInOutlined,
+  ZoomOutOutlined, SelectOutlined
+} from "@ant-design/icons";
 const { Text } = Typography;
 
 export const AddModal = (props: Record<string, any>) => {
@@ -10,7 +14,7 @@ export const AddModal = (props: Record<string, any>) => {
     handleSave
   } = props;
 
-  const [showLink, setShowLink] = useState(false);
+  const [images, setImages] = useState<string[]>();
   const [scrapingError, setScrapingError] = useState<string>();
   const [linkProcessing, setLinkProcessing] = useState(false);
   const [newItem, setNewItem] = useState({
@@ -74,7 +78,7 @@ export const AddModal = (props: Record<string, any>) => {
             if (errorMsg) {
               setScrapingError(errorMsg);
             } else {
-            
+              setImages(images);
               setNewItem({
                 ...newItem,
                 title,
@@ -109,7 +113,6 @@ export const AddModal = (props: Record<string, any>) => {
         purchased: 0,
         link: ''
       });
-      setShowLink(false);
       setLinkProcessing(false);
       handleCancel();
     }}>
@@ -133,9 +136,37 @@ export const AddModal = (props: Record<string, any>) => {
         <Input placeholder="quantity" addonBefore="How many" value={newItem.quantity} onChange={setQuantity}/>
         <Input placeholder="link (will not scrape)" addonBefore="Link" value={newItem.link} onChange={setLink} />
       </div>
-      {newItem.img && <div>
-        <Image width="100%" src={newItem.img} />
-      </div>}
+      {images && <div style={{ height: "min-content" }}>
+        <strong>Select the image you would like to use?</strong><br/><em>the current image will be highlighted in <span style={{color: "red"}}>red</span></em>
+        <div style={{height: "250px", overflow: "auto"}}>
+          <Flex wrap="wrap" gap="small">
+          {images.map((image, index) => <Image
+            style={{
+              border: image === newItem.img ? "2px solid red" : "none",
+            }}
+            alt="image option"
+            key={image}
+            width={image === newItem.img ? 100 : 50}
+            src={image}
+            onClick={() => console.log("**** selected image at index", index)}
+            preview={{
+              toolbarRender: (_, { actions: { onZoomOut, onZoomIn}}) => {
+                return <Space size={40}>
+                  <ZoomOutOutlined alt="zoom out" onClick={onZoomOut} style={{ fontSize: "50px", marginBottom: "20px" }} width={500} rev={undefined} />
+                  <Space direction="vertical" onClick={() => setNewItem({
+                      ...newItem,
+                      img: images?.[index],
+                    })}>
+                    <SelectOutlined alt="select image" id="select-icon" style={{ fontSize: "50px" }} label="Use this image" width={500} rev={undefined} />
+                    <label>Select</label></Space>
+                  <ZoomInOutlined alt="zoom in" width={500} style={{ fontSize: "50px", marginBottom: "20px" }} onClick={onZoomIn} rev={undefined} />
+                </Space>
+              }
+            }}
+          />)}
+      </Flex>
+        </div>
+        </div>}
     </Space>
 
   </Space>

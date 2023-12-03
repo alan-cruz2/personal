@@ -1,5 +1,5 @@
 import { Button, Form, Popconfirm, Table, Typography } from 'antd';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { EditableCell } from '../editable';
 import { AddModal } from './add';
 import { useGetAPI, usePutAPI } from '../hooks/useAPI';
@@ -16,65 +16,26 @@ export interface Item {
   tags?: string[];
   img?: string;
   link?: string;
+  id?: string;
 }
 
 const defaultColumns = ["img", "title", "description", "quantity", "purchased", "link"];
 const ownerColumns = ["img", "title", "description", "quantity", "link"];
-const validationFields: string[] = ["title", "description"];
 const { Column } = Table;
-const seedData = [
-  {
-    key: '1',
-    title: 'John',
-    description: 'Brown',
-    quantity: 2,
-    purchased: 1,
-    keywords: ['nice', 'developer'],
-  },
-  {
-    key: '2',
-    title: 'John',
-    description: 'Brown',
-    quantity: 2,
-    purchased: 1,
-    keywords: ['loser'],
-  },
-  {
-    key: '3',
-    title: 'John',
-    description: 'Brown',
-    quantity: 2,
-    purchased: 1,
-    keywords: ['cool', 'teacher'],
-  },
-];
 
 export const AddView = ({ userToView } : {userToView?: string}) => {
   const { data: session } = useSession();
-  const [data, setData] = useState<Record<string, any>[]>();
-  const [refresh, setRefresh] = useState<boolean>(true);
-  
-  useEffect(() => {
-    const getItems = async () => {
-      const {data: responseData} = await useGetAPI(userToView ?? session?.user?.email);
-      setData(responseData);
-    }
-
-    if (refresh) {
-      getItems();
-      setRefresh(false);
-    }
-  }, [userToView, session, setData, refresh, setRefresh]);
+  const {data = [], refresh} = useGetAPI(userToView ?? session?.user?.email);
   
   const isOwner = userToView === session?.user?.email;
   const { postRequest } = usePutAPI();
   
   const [editingKey, setEditingKey] = useState<string|undefined>('');
   const [form] = Form.useForm();
-  const isEditing = (record: Partial<Item>) => record.key === editingKey;
+  const isEditing = (record: Partial<Item>) => record?.id === editingKey;
 
   const edit = (record: Partial<Item> & {key?: React.Key}) => {
-    setEditingKey(record?.key);
+    setEditingKey(record?.id);
   };
 
   const [showPurchasedModal, setShowPurchasedModal] = useState(false);
@@ -86,26 +47,11 @@ export const AddView = ({ userToView } : {userToView?: string}) => {
 
   const save = async (key: React.Key | undefined) => {
     try {
-      const row = (await form.validateFields(validationFields, {
-        validateOnly: true,
-      })) as Item;
-      const row2 = (await form.getFieldsValue());
-      console.log("**** row", row, row2);
-      // const index = newData.findIndex(item => item.key === key);
-
-      // if (index > -1) {
-      //   const item = newData[index];
-      //   newData.splice(index, 1, {
-      //     ...item,
-      //     ...row,
-      //   });
-      //   postRequest(newData);
-      //   setEditingKey('');
-      // } else {
-      //   newData.push(row);
-      //   postRequest(newData);
-      //   setEditingKey('');
-      // }
+      const original = data.find((item: Item) => item.id === editingKey) ?? {};
+      const editedItem = (await form.getFieldsValue());
+      await postRequest(JSON.stringify({ ...original, ...editedItem}));
+      setEditingKey('');
+      refresh();
     } catch (err) {
       console.log('Validate Failed:', err);
     }
@@ -125,6 +71,7 @@ export const AddView = ({ userToView } : {userToView?: string}) => {
         record,
         required: false,
         hidden: columnKey === "id",
+        isOwner,
       })
     }
   });
@@ -147,7 +94,7 @@ export const AddView = ({ userToView } : {userToView?: string}) => {
         const editable = isEditing(record);
         return editable ? (
           <span>
-            <Typography.Link onClick={() => save(record.key)} style={{ marginRight: 8 }}>
+            <Typography.Link onClick={() => save(record.id)} style={{ marginRight: 8 }}>
               Save
             </Typography.Link>
             <Popconfirm title="Sure to cancel?" onConfirm={cancel}>
@@ -185,12 +132,11 @@ export const AddView = ({ userToView } : {userToView?: string}) => {
     newItem.user = session?.user?.email;
     setConfirmLoading(true);
     postRequest(JSON.stringify(newItem));
-    setRefresh(true);
+    refresh();
     setOpen(false);
   };
 
   const handlePurchaseSave = (item: any) => {
-    console.log("**** item saving", item);
     postRequest(JSON.stringify(item));
     hidePurchased();
   };
@@ -231,9 +177,3 @@ export const AddView = ({ userToView } : {userToView?: string}) => {
     }
     </>
 };
-
-// title: 'John',
-// description: 'Brown',
-// quantity: 2,
-// purchased: 1,
-// tags: ['loser'],

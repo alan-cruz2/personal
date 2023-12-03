@@ -11,6 +11,7 @@ interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
   index: number;
   children: React.ReactNode;
   link?: string;
+  isOwner?: boolean;
 }
 
 export const EditableCell: React.FC<EditableCellProps> = (props) => {
@@ -23,6 +24,7 @@ export const EditableCell: React.FC<EditableCellProps> = (props) => {
     record,
     index,
     children,
+    isOwner,
     ...restProps
   } = props;
   console.log("**** id", title);
@@ -39,7 +41,7 @@ export const EditableCell: React.FC<EditableCellProps> = (props) => {
         </Form.Item>
       ) : (
         record?.img && dataIndex === "img" ? <Image height={100} src={record?.img ?? ""} /> : 
-        !!title && record?.quantity === record?.purchased ? <s>{children}</s> :
+        !!title && record?.quantity === record?.purchased && !isOwner ? <s>{children}</s> :
         title === "link" ? <Button href={record?.link} target='_blank'>Link</Button> : children
       )}
     </td>

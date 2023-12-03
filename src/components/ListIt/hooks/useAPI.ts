@@ -1,20 +1,31 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export const useGetAPI = (user: any) => {
   const [data, setData] = useState();
+  const [shouldFetch, setShouldFetch] = useState(true);
   
   useEffect(() => {
-    fetch("https://zu5haugmkr2ft3oq4i3li2abcy0ktqvt.lambda-url.us-east-1.on.aws/", {
-      method: "POST",
-      body: user
-    })
-      .then(response => response.json())
-      .then(data => setData(data?.Items ?? []))
-      .catch(error => console.log("**** data response error", error))
-  }, []);
+    if (shouldFetch) {
+      fetch("https://zu5haugmkr2ft3oq4i3li2abcy0ktqvt.lambda-url.us-east-1.on.aws/", {
+        method: "POST",
+        body: user
+      })
+        .then(response => response.json())
+        .then(data => {
+          setShouldFetch(false);
+          setData(data?.Items ?? []);
+        })
+        .catch(error => console.log("**** data response error", error))
+    }
+  }, [shouldFetch, user]);
+
+  const refresh = useCallback(() => {
+    setShouldFetch(true);
+  }, [setShouldFetch]);
 
   return {
-    data
+    data,
+    refresh,
   };
 };
 
