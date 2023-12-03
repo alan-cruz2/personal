@@ -1,6 +1,5 @@
 import { Select, Space } from 'antd';
 import { useState, useCallback } from 'react';
-import { useGetAPI, usePutAPI } from './hooks/useAPI';
 import { useSession } from 'next-auth/react';
 import { AddView } from "./add";
 
@@ -17,11 +16,6 @@ export interface Item {
 
 export const ListIt = () => {
   const { data: session } = useSession();
-  const {data} = useGetAPI(session?.user?.email);
-  const { postRequest } = usePutAPI();
-
-  const [showLink, setShowLink] = useState(false);
-  const [selectedView, setSelectedView] = useState();
   const [userToView, setUserToView] = useState<string | undefined>(session?.user?.email ?? undefined);
 
   const handleViewUser = useCallback((val: string) => {

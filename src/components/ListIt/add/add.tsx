@@ -14,6 +14,7 @@ export const AddModal = (props: Record<string, any>) => {
     handleSave
   } = props;
 
+  const [visibleImage, setVisibleImage] = useState<string>();
   const [images, setImages] = useState<string[]>();
   const [scrapingError, setScrapingError] = useState<string>();
   const [linkProcessing, setLinkProcessing] = useState(false);
@@ -148,20 +149,30 @@ export const AddModal = (props: Record<string, any>) => {
             key={image}
             width={image === newItem.img ? 100 : 50}
             src={image}
-            onClick={() => console.log("**** selected image at index", index)}
+            onClick={() => setVisibleImage(image)}
             preview={{
+              visible: image === visibleImage,
               toolbarRender: (_, { actions: { onZoomOut, onZoomIn}}) => {
                 return <Space size={40}>
                   <ZoomOutOutlined alt="zoom out" onClick={onZoomOut} style={{ fontSize: "50px", marginBottom: "20px" }} width={500} rev={undefined} />
-                  <Space direction="vertical" onClick={() => setNewItem({
+                  <Space direction="vertical" onClick={() => {
+                    setNewItem({
                       ...newItem,
                       img: images?.[index],
-                    })}>
+                    });
+                    setVisibleImage(undefined);
+                  }
+                    }>
                     <SelectOutlined alt="select image" id="select-icon" style={{ fontSize: "50px" }} label="Use this image" width={500} rev={undefined} />
                     <label>Select</label></Space>
                   <ZoomInOutlined alt="zoom in" width={500} style={{ fontSize: "50px", marginBottom: "20px" }} onClick={onZoomIn} rev={undefined} />
                 </Space>
-              }
+              },
+              onVisibleChange: (value) => {
+                if (!value) {
+                  setVisibleImage(undefined);
+                }
+              },
             }}
           />)}
       </Flex>

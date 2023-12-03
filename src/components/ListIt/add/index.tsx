@@ -63,6 +63,16 @@ export const AddView = ({ userToView } : {userToView?: string}) => {
       dataIndex: columnKey,
       key: columnKey,
       required: false,
+      defaultSortOrder: "descend",
+      sorter: (a: Record<string, any>, b: Record<string, any>) => {
+        if (a[columnKey] < b[columnKey]) {
+          return -1;
+        }
+        if (a[columnKey] > b[columnKey]) {
+          return 1;
+        }
+        return 0;
+      },
       onCell: (record: Item) => ({
         title: columnKey,
         dataIndex: columnKey,
@@ -128,10 +138,10 @@ export const AddView = ({ userToView } : {userToView?: string}) => {
     setOpen(false);
   };
 
-  const handleSave = (newItem: { user: string | null | undefined; }) => {
+  const handleSave = async (newItem: { user: string | null | undefined; }) => {
     newItem.user = session?.user?.email;
     setConfirmLoading(true);
-    postRequest(JSON.stringify(newItem));
+    await postRequest(JSON.stringify(newItem));
     refresh();
     setOpen(false);
   };
@@ -151,6 +161,9 @@ export const AddView = ({ userToView } : {userToView?: string}) => {
       rowClassName={(record) => {
         const { quantity, purchased } = record;
         return quantity === purchased ? "all-gone" : ""
+      }}
+      pagination={{
+        pageSize: 4
       }}
     />
     {isOwner && <Form.Item wrapperCol={{ offset: 12, span: 12 }}>
