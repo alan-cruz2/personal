@@ -9,7 +9,7 @@ import { PurchasedModal } from "./purchased";
 import { ColumnType } from "antd/es/table";
 import { SearchOutlined } from "@ant-design/icons";
 import Highlighter from 'react-highlight-words';
-import didYouMean, { ReturnTypeEnums, ThresholdTypeEnums } from 'didyoumean2';
+import didYouMean, { ReturnTypeEnums } from 'didyoumean2';
 
 export interface Item {
   key: string;
@@ -117,7 +117,7 @@ export const AddView = ({ userToView }: { userToView?: string }) => {
     ),
     onFilter: (value, record: Record<string, any>) => {
       const valueArray = record[dataIndex].toLowerCase().split(' ');
-      const suggestions = didYouMean(searchText.toLowerCase(), valueArray, { returnType: ReturnTypeEnums.ALL_SORTED_MATCHES, threshold: 5, thresholdType: ThresholdTypeEnums.EDIT_DISTANCE});
+      const suggestions = didYouMean(searchText.toLowerCase(), valueArray, { returnType: ReturnTypeEnums.ALL_SORTED_MATCHES });
       const inAWord = valueArray.find((word: string) => word.indexOf(searchText.toLowerCase()) > -1);
       return suggestions.length > 0 || !!inAWord || !searchText;
     },
