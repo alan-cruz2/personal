@@ -1,11 +1,15 @@
-import { Button, Form, Popconfirm, Table, Typography } from "antd";
-import { useState } from "react";
+import { Button, Form, Input, Popconfirm, Space, Table, Typography } from "antd";
+import { useState, useRef } from "react";
+import type { InputRef } from 'antd';
 import { EditableCell } from "../editable";
 import { AddModal } from "./add";
 import { useGetAPI, usePutAPI } from "../hooks/useAPI";
 import { useSession } from "next-auth/react";
 import { PurchasedModal } from "./purchased";
 import { ColumnType } from "antd/es/table";
+import { SearchOutlined } from "@ant-design/icons";
+import Highlighter from 'react-highlight-words';
+import didYouMean, { ReturnTypeEnums, ThresholdTypeEnums } from 'didyoumean2';
 
 export interface Item {
   key: string;
@@ -28,10 +32,14 @@ const defaultColumns = [
   "link",
 ];
 const ownerColumns = ["img", "title", "description", "quantity", "link"];
+const searchableColumns = ["title", "description"];
 const { Column } = Table;
 
 export const AddView = ({ userToView }: { userToView?: string }) => {
   const { data: session } = useSession();
+  const [searchText, setSearchText] = useState('');
+  const [searchedColumn, setSearchedColumn] = useState('');
+  const searchInput = useRef<InputRef>(null);
   const { data = [], refresh } = useGetAPI(userToView ?? session?.user?.email);
 
   const isOwner = userToView === session?.user?.email;
@@ -66,6 +74,76 @@ export const AddView = ({ userToView }: { userToView?: string }) => {
     }
   };
 
+  const getColumnSearchProps = (dataIndex: string): ColumnType<Item> => ({
+    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
+      <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
+        <Input
+          ref={searchInput}
+          placeholder={`Search ${dataIndex}`}
+          value={selectedKeys[0]}
+          onChange={(e) => {
+            setSearchText(e.target.value);
+            setSelectedKeys([e.target.value]);
+          }}
+          onPressEnter={() => confirm()}
+          style={{ marginBottom: 8, display: 'block' }}
+        />
+        <Space>
+        <Button
+            type="link"
+            size="small"
+            onClick={() => {
+              setSearchText('');
+              setSelectedKeys([]);
+              clearFilters?.();
+            }}
+          >
+            clear
+          </Button>
+          <Button
+            type="link"
+            size="small"
+            onClick={() => {
+              close();
+            }}
+          >
+            close
+          </Button>
+        </Space>
+      </div>
+    ),
+    filterIcon: (filtered: boolean) => (
+      <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} rev={undefined}/>
+    ),
+    onFilter: (value, record: Record<string, any>) => {
+      const valueArray = record[dataIndex].toLowerCase().split(' ');
+      const suggestions = didYouMean(searchText.toLowerCase(), valueArray, { returnType: ReturnTypeEnums.ALL_SORTED_MATCHES, threshold: 5, thresholdType: ThresholdTypeEnums.EDIT_DISTANCE});
+      const inAWord = valueArray.find((word: string) => word.indexOf(searchText.toLowerCase()) > -1);
+      return suggestions.length > 0 || !!inAWord || !searchText;
+    },
+    
+      // record[dataIndex]
+      //   .toString()
+      //   .toLowerCase()
+      //   .includes((value as string).toLowerCase()),
+    onFilterDropdownOpenChange: (visible) => {
+      if (visible) {
+        setTimeout(() => searchInput.current?.select(), 100);
+      }
+    },
+    render: (text) =>
+      searchedColumn === dataIndex ? (
+        <Highlighter
+          highlightStyle={{ backgroundColor: '#ffc069', padding: 0 }}
+          searchWords={[searchText]}
+          autoEscape
+          textToHighlight={text ? text.toString() : ''}
+        />
+      ) : (
+        text
+      ),
+  });
+
   const columns: Record<string, any> = (
     isOwner ? ownerColumns : defaultColumns
   ).map((columnKey) => {
@@ -75,6 +153,8 @@ export const AddView = ({ userToView }: { userToView?: string }) => {
       key: columnKey,
       required: false,
       defaultSortOrder: "descend",
+      ...(searchableColumns.indexOf(columnKey) >-1 && getColumnSearchProps(columnKey)),
+      //onFilter: (value, record) => {const suggestions = didYouMean(value, record[columnKey].split(' ')); console.log("**** suggestions", suggestions);},
       sorter: (a: Record<string, any>, b: Record<string, any>) => {
         if (a[columnKey] < b[columnKey]) {
           return -1;
@@ -134,13 +214,13 @@ export const AddView = ({ userToView }: { userToView?: string }) => {
           </Typography.Link>
         );
       } else {
-        const { quantity, purchased } = record;
+        const { quantity = 1, purchased = 0 } = record;
         return (
           <Typography.Link
-            disabled={record.purchased === record.quantity}
+            disabled={record.purchased! <= record.quantity!}
             onClick={() => showPurchased(record)}
           >
-            {quantity === purchased ? "Already purchased" : "Mark as purchased"}
+            {quantity! <= purchased! ? "Already purchased" : "Mark as purchased"}
           </Typography.Link>
         );
       }

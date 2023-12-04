@@ -12,7 +12,7 @@ export const PurchasedModal = (props: Record<string, any>) => {
     (val: any) => {
       setLocalItem({
         ...item,
-        purchased: val,
+        purchased: item.purchased + val,
       });
     },
     [item, setLocalItem]
@@ -20,7 +20,7 @@ export const PurchasedModal = (props: Record<string, any>) => {
 
   const savePurchased = useCallback(() => {
     handleSave(localItem);
-  }, [localItem]);
+  }, [localItem, handleSave]);
 
   return (
     <Modal

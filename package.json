@@ -1,6 +1,6 @@
 {
-  "name": "aqua-studios",
-  "version": "0.1.0",
+  "name": "cruzable",
+  "version": "0.0.0",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -19,6 +19,7 @@
     "amazon-list-scraper": "^0.1.2",
     "antd": "^5.11.1",
     "csstype": "^3.1.1",
+    "didyoumean2": "^6.0.1",
     "eslint": "8.36.0",
     "eslint-config-next": "13.2.4",
     "framer-motion": "^10.3.1",
@@ -30,12 +31,14 @@
     "next-auth": "^4.24.5",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-highlight-words": "^0.20.0",
     "react-intersection-observer": "^9.4.3",
     "typescript": "4.9.5",
     "url-metadata": "^3.3.0",
     "yup": "^1.0.2"
   },
   "devDependencies": {
+    "@types/react-highlight-words": "^0.16.7",
     "prettier": "^2.8.4"
   }
 }

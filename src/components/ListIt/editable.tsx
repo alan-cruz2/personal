@@ -39,7 +39,7 @@ export const EditableCell: React.FC<EditableCellProps> = (props) => {
         </Form.Item>
       ) : record?.img && dataIndex === "img" ? (
         <Image height={100} src={record?.img ?? ""} />
-      ) : !!title && record?.quantity === record?.purchased && !isOwner ? (
+      ) : !!title && record?.quantity! <= record?.purchased! && !isOwner ? (
         <s>{children}</s>
       ) : title === "link" ? (
         <Button href={record?.link} target="_blank">
