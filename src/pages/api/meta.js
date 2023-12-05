@@ -1,6 +1,6 @@
 import { getLinkPreview } from "link-preview-js";
-const AmazonListScraper = require("amazon-list-scraper").default;
-var awl = new AmazonListScraper();
+import AmazonWishList from '../../localVersions/amazon-wish-list/lib';
+var awl = new AmazonWishList();
 
 function parseMetas(str) {
   let regex = /<meta(?!.*?(ignore))[\s\S]*?\/?>/g;
@@ -38,7 +38,7 @@ const ApiHandler = async function (req, res) {
     if (body.scrapeType === "list") {
       try {
         awl
-          .scrape(body.link)
+          .getById(body.link)
           .then(function (list) {
             data = list;
             if (data) {

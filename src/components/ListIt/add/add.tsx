@@ -29,7 +29,7 @@ export const AddModal = (props: Record<string, any>) => {
   }, [scrapeType, setScrapeType]);
 
   const [images, setImages] = useState<string[]>();
-  const [listData, setListData] = useState<Record<string, any>[]>([]);
+  const [listData, setListData] = useState<{items: Record<string, any>[]}>({items: []});
   const [scrapingError, setScrapingError] = useState<string>();
   const [linkProcessing, setLinkProcessing] = useState(false);
   const [newItem, setNewItem] = useState({
@@ -89,8 +89,12 @@ export const AddModal = (props: Record<string, any>) => {
   const onLinkPaste = useCallback(
     (value: string | URL) => {
       try {
-        const url = new URL(value);
-        const body = { link: value, scrapeType };
+        let url = value;
+        if (scrapeType === "product") {
+          url = new URL(value);
+        }
+        
+        const body = { link: url, scrapeType };
 
         if (url) {
           setScrapingError(undefined);
@@ -309,7 +313,7 @@ export const AddModal = (props: Record<string, any>) => {
             </>
           ) : (
             <Table
-              dataSource={listData}
+              dataSource={listData.items}
               columns={[
                 {
                   title: "Title",
