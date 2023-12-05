@@ -36,15 +36,22 @@ const ApiHandler = async function (req, res) {
     }
 
     if (body.scrapeType === "list") {
-      awl
-        .scrape(body.link)
-        .then(function (list) {
-          data = list;
-          if (data) {
-            res.status(200).json(data);
-          }
-        })
-        .catch((err) => console.error(err));
+      try {
+        awl
+          .scrape(body.link)
+          .then(function (list) {
+            data = list;
+            if (data) {
+              res.status(200).json(data);
+            }
+          })
+          .catch((err) => {
+            console.error(err);
+            res.status(500).json({error: err.toString() })
+          });
+      } catch (errr) {
+        res.status(500).json({error: errr.toString() })
+      }
     }
   }
 };
