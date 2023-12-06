@@ -31,8 +31,14 @@ const defaultColumns = [
   "purchased",
   "link",
 ];
-const ownerColumns = ["img", "title", "description", "quantity", "link"];
-const searchableColumns = ["title", "description"];
+const ownerColumns = ["img", "title", "quantity", "link"];
+const searchableColumns = ["title"];
+const columnWidths = {
+  img: "25%",
+  title: "35%",
+  quantity: "20%",
+  link: "20%",
+}
 const { Column } = Table;
 
 export const AddView = ({ userToView }: { userToView?: string }) => {
@@ -152,6 +158,7 @@ export const AddView = ({ userToView }: { userToView?: string }) => {
       dataIndex: columnKey,
       key: columnKey,
       required: false,
+      width: columnWidths[columnKey],
       defaultSortOrder: "descend",
       ...(searchableColumns.indexOf(columnKey) >-1 && getColumnSearchProps(columnKey)),
       //onFilter: (value, record) => {const suggestions = didYouMean(value, record[columnKey].split(' ')); console.log("**** suggestions", suggestions);},
@@ -273,8 +280,18 @@ export const AddView = ({ userToView }: { userToView?: string }) => {
             return quantity === purchased ? "all-gone" : "";
           }}
           pagination={{
-            pageSize: 4,
+            pageSize: 10,
           }}
+          expandable={{
+            expandedRowRender: (record) => <p>
+              {record.description}
+            </p>,
+            rowExpandable: (record) => !!record.description,
+            expandRowByClick: true,
+            fixed: true,
+            showExpandColumn: false
+          }}
+          rowKey={(record) => record.id}
         />
         {isOwner && (
           <Form.Item wrapperCol={{ offset: 12, span: 12 }}>
