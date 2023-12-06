@@ -279,6 +279,9 @@ export const AddView = ({ userToView }: { userToView?: string }) => {
             const { quantity, purchased } = record;
             return quantity === purchased ? "all-gone" : "";
           }}
+          style={{
+            cursor: "pointer"
+          }}
           pagination={{
             pageSize: 10,
           }}
