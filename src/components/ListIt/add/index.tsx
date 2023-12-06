@@ -217,7 +217,7 @@ export const AddView = ({ userToView }: { userToView?: string }) => {
         const { quantity = 1, purchased = 0 } = record;
         return (
           <Typography.Link
-            disabled={record.purchased! <= record.quantity!}
+            disabled={record.purchased! >= record.quantity!}
             onClick={() => showPurchased(record)}
           >
             {quantity! <= purchased! ? "Already purchased" : "Mark as purchased"}
