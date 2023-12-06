@@ -86,6 +86,17 @@ export const AddModal = (props: Record<string, any>) => {
     [newItem, setNewItem]
   );
 
+  const setImage = useCallback(
+    (event: { target: { value: any } }) => {
+      const image = event?.target?.value ?? event;
+      setNewItem({
+        ...newItem,
+        img: image,
+      });
+    },
+    [newItem, setNewItem]
+  );
+
   const onLinkPaste = useCallback(
     (value: string | URL) => {
       try {
@@ -223,6 +234,12 @@ export const AddModal = (props: Record<string, any>) => {
                   addonBefore="Link"
                   value={newItem.link}
                   onChange={setLink}
+                />
+                <Input
+                  placeholder="url for image"
+                  addonBefore="Image"
+                  value={newItem.img}
+                  onChange={setImage}
                 />
               </div>
               {images && (
