@@ -33,7 +33,7 @@ const defaultColumns = [
 ];
 const ownerColumns = ["img", "title", "quantity", "link"];
 const searchableColumns = ["title"];
-const columnWidths = {
+const columnWidths: Record<string, string> = {
   img: "25%",
   title: "35%",
   quantity: "20%",
