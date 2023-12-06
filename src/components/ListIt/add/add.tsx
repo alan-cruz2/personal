@@ -29,7 +29,7 @@ export const AddModal = (props: Record<string, any>) => {
   }, [scrapeType, setScrapeType]);
 
   const [images, setImages] = useState<string[]>();
-  const [listData, setListData] = useState<{items: Record<string, any>[]}>({items: []});
+  const [listData, setListData] = useState<Record<string, any>[]>([]);
   const [scrapingError, setScrapingError] = useState<string>();
   const [linkProcessing, setLinkProcessing] = useState(false);
   const [newItem, setNewItem] = useState({
@@ -126,8 +126,7 @@ export const AddModal = (props: Record<string, any>) => {
                   //   productId: 'B075LN9V1L',
                   //   link: 'https://amzn.com/dp/B075LN9V1L/?coliid=I2UD6OGE0G2HPY&colid=34R31ZSKLEM49&psc=1&ref_=list_c_wl_lv_vv_lig_dp_it'
                   // }
-                  console.log("**** data", data);
-                  setListData(data);
+                  setListData(data.items);
                 }
               }
               setLinkProcessing(false);
@@ -313,7 +312,7 @@ export const AddModal = (props: Record<string, any>) => {
             </>
           ) : (
             <Table
-              dataSource={listData.items}
+              dataSource={listData}
               columns={[
                 {
                   title: "Title",
