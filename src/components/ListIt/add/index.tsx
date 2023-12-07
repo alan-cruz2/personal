@@ -286,13 +286,10 @@ export const AddView = ({ userToView }: { userToView?: string }) => {
             pageSize: 10,
           }}
           expandable={{
-            expandedRowRender: (record) => <p>
+            expandedRowRender: (record, index) => <EditableCell title="description" inputType="text" style={{ width: "100%", display: "inline-block" }} record={record as Item} editing={isEditing(record)} dataIndex="description" index={index}>
               {record.description}
-            </p>,
+            </EditableCell>,
             rowExpandable: (record) => !!record.description,
-            expandRowByClick: true,
-            fixed: true,
-            showExpandColumn: false
           }}
           rowKey={(record) => record.id}
         />

@@ -35,7 +35,7 @@ export const EditableCell: React.FC<EditableCellProps> = (props) => {
           initialValue={(record as Record<string, any>)?.[dataIndex]}
           preserve={false}
         >
-          <Input key={`${title}-${dataIndex}`} />
+          <Input key={`${title}-${dataIndex}`} width="100%"/>
         </Form.Item>
       ) : record?.img && dataIndex === "img" ? (
         <Image height={100} src={record?.img ?? ""} />
