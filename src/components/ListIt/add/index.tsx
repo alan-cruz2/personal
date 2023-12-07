@@ -26,7 +26,6 @@ export interface Item {
 const defaultColumns = [
   "img",
   "title",
-  "description",
   "quantity",
   "purchased",
   "link",
