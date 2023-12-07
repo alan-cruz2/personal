@@ -14,25 +14,14 @@ Setup:
 How does list it work?
 - AWS infrastructure, (different repo, currently only local to Alan -- will eventually push it up).
 
+Simplified flow diagram for scraping
 ```mermaid
-sequenceDiagram
-    participant client
-    participant Lambda
-    participant Dynamodb
-    participant "NextJS API"
-    participant "external web"
-    
-    critical Adding an item via scraping
-    client->>"NextJS API" submit scraping url
-    "NextJS API"->>"NextJS API" determine scraping method
-    "NextJS API"->>"external web" cheerio request to retrieve DOM and parse
-    "NextJS API"->>client return data
-    client->>Lambda submit data (ID added if new item)
-    Lambda->>DynamoDB data save
-
-    critical Retrieving items
-    client->>Lambda post (to get user data we send up the email in the post body, and get just for that address/user) data
-    Lambda->>DynamoDB return data
+graph TD;
+    client-->|1|NextJS_API;
+    NextJS_API-->|2|external_web;
+    NextJS_API-->|3|client;
+    client-->|4|Lambda;
+    Lambda-->|5|DynamoDB;
 ```
 
 Steps for dev
