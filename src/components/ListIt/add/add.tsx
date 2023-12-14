@@ -131,12 +131,17 @@ export const AddModal = (props: Record<string, any>) => {
                   });
                 }
                 if (scrapeType === "list") {
-                  // {
+                                    // {
                   //   title: 'Shappy Bell Mallets Glockenspiel Sticks, Rubber Xylophone Mallet Percussion with Wood Handle, 15 Inch Long (Black)',
                   //   price: 9.49,
                   //   productId: 'B075LN9V1L',
                   //   link: 'https://amzn.com/dp/B075LN9V1L/?coliid=I2UD6OGE0G2HPY&colid=34R31ZSKLEM49&psc=1&ref_=list_c_wl_lv_vv_lig_dp_it'
                   // }
+                  data.items.forEach((item: Record<string, number | string>) => {
+                    item.quantity = 1;
+                    item.description = item.title;
+                    item.purchased = 0;
+                  });
                   setListData(data.items);
                 }
               }

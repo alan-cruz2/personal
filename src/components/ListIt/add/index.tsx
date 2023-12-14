@@ -226,7 +226,7 @@ export const AddView = ({ userToView }: { userToView?: string }) => {
             disabled={record.purchased! >= record.quantity!}
             onClick={() => showPurchased(record)}
           >
-            {quantity! <= purchased! ? "Already purchased" : "Mark as purchased"}
+            {~~quantity! <= purchased! && purchased > 0 ? "Already purchased" : "Mark as purchased"}
           </Typography.Link>
         );
       }
@@ -264,8 +264,6 @@ export const AddView = ({ userToView }: { userToView?: string }) => {
     postRequest(JSON.stringify(item));
     hidePurchased();
   };
-
-  const [showLink, setShowLink] = useState(false);
 
   return (
     <>
